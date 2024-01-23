@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group 'com.wordsTeacher'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.9.2'
+}
+
+dependencies {
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:10.0.20"
+    implementation "org.apache.tomcat.embed:tomcat-embed-jasper:10.0.20"
+    implementation group: 'com.mysql', name: 'mysql-connector-j', version: '8.2.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
