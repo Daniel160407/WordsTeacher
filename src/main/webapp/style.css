@@ -1,6 +1,5 @@
 .nav-tabs {
     margin-bottom: 20px;
-
 }
 
 .tab-content {
@@ -11,4 +10,12 @@
 
 .tab-content h2 {
     text-align: center;
+}
+
+.center-box {
+    text-align: center;
+}
+
+#freeSlots {
+    color: darkgreen;
 }

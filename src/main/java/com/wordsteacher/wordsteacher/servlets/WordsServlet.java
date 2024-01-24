@@ -9,18 +9,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/nouns")
-public class NounsServlet extends HttpServlet {
+@WebServlet("/words")
+public class WordsServlet extends HttpServlet {
     private final MySQLController mySQLController = new MySQLController();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/json");
         try {
-            List<Word> words = mySQLController.getNouns();
+            List<Word> words = mySQLController.getWords();
             PrintWriter printWriter = response.getWriter();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -30,5 +29,22 @@ public class NounsServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
         response.setStatus(200);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType("text/text");
+        String word = request.getParameter("word");
+        String meaning = request.getParameter("meaning");
+
+        mySQLController.addWords(word, meaning);
+
+        try {
+            PrintWriter printWriter = response.getWriter();
+            printWriter.println(mySQLController.getWordsAmount());
+            System.out.println(new ObjectMapper().writeValueAsString(mySQLController.getWords()));
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 }

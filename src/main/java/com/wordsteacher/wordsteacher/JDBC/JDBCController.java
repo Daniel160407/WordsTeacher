@@ -10,8 +10,9 @@ public interface JDBCController {
 
     void createTables();
 
-    List<Word> getNouns() throws SQLException;
+    List<Word> getWords() throws SQLException;
 
-    List<String> getVerb();
+    int getWordsAmount() throws SQLException;
 
+    void addWords(String word, String meaning);
 }
