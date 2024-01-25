@@ -1,5 +1,5 @@
 $("document").ready(async function start() {
-    getWords();
+    await getWords();
 
     $("#wordInputForm").submit(async function (event) {
         event.preventDefault();
@@ -26,12 +26,40 @@ async function getWords() {
 
     const jsonArray = await response.json();
     let dataToDisplay = "";
-    console.log(jsonArray.length);
+
     for (let i = 0; i < jsonArray.length; i++) {
-        dataToDisplay += "<p>" + jsonArray[i].id + ": " + jsonArray[i].word + " - " + jsonArray[i].meaning + "<p/><br/>";
+        dataToDisplay += "<p class='words'>" + jsonArray[i].id + ": " + jsonArray[i].word + " - "
+            + jsonArray[i].meaning + "<p/><input id='" + jsonArray[i].id + "' type='checkbox' class='checkBox'> <br/>";
     }
     const div = document.getElementById("part1Content");
     div.innerHTML = dataToDisplay;
 
     document.getElementById("freeSlots").innerText = "Free slots remaining: " + (100 - jsonArray.length);
+}
+
+async function sendWords() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    const checkedCheckboxes = Array.from(checkboxes);
+
+    let response = await fetch("/wordsTeacher/words", {method: "GET"});
+    let jsonArray = await response.json();
+
+    const words = [];
+
+    for (let i = 0; i < jsonArray.length; i++) {
+        for (let j = 0; j < checkedCheckboxes.length; j++) {
+            if (jsonArray[i].id == checkedCheckboxes[j].id) {
+                words.push(jsonArray[i]);
+            }
+        }
+    }
+
+    await fetch("/wordsTeacher/wordDropper", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(words),
+    });
+
 }

@@ -16,6 +16,31 @@
     text-align: center;
 }
 
+.words {
+    display: inline-block;
+    float: left;
+}
+
+.checkBox {
+    display: inline-block;
+    float: right;
+    margin-left: 10px;
+}
+
 #freeSlots {
     color: darkgreen;
+}
+
+#submitButton{
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#submitButton:hover{
+    background-color: #45a049;
 }

@@ -1,5 +1,7 @@
 package com.wordsteacher.wordsteacher.JDBC;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wordsteacher.wordsteacher.word.Word;
 
 import java.sql.*;
@@ -29,6 +31,13 @@ public class MySQLController implements JDBCController {
             Statement statement = con.createStatement();
             statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `words`.`words` (
+                      `id` INT NOT NULL AUTO_INCREMENT,
+                      `word` VARCHAR(45) NOT NULL,
+                      `meaning` VARCHAR(45) NOT NULL,
+                      PRIMARY KEY (`id`));
+                    """);
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `words`.`droppedwords` (
                       `id` INT NOT NULL AUTO_INCREMENT,
                       `word` VARCHAR(45) NOT NULL,
                       `meaning` VARCHAR(45) NOT NULL,
@@ -78,6 +87,28 @@ public class MySQLController implements JDBCController {
             preparedStatement.setString(2, meaning);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void dropWords(StringBuilder jsonPayload) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        try {
+            JsonNode jsonArray = new ObjectMapper().readTree(String.valueOf(jsonPayload));
+
+            PreparedStatement preparedStatement = con.prepareStatement("insert into droppedWords (word,meaning) values (?,?)");
+            for (JsonNode jsonNode : jsonArray) {
+                String word = jsonNode.get("word").asText();
+                String meaning = jsonNode.get("meaning").asText();
+
+                preparedStatement.setString(1, word);
+                preparedStatement.setString(2, meaning);
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
             throw new RuntimeException();
         }
     }

@@ -42,7 +42,6 @@ public class WordsServlet extends HttpServlet {
         try {
             PrintWriter printWriter = response.getWriter();
             printWriter.println(mySQLController.getWordsAmount());
-            System.out.println(new ObjectMapper().writeValueAsString(mySQLController.getWords()));
         } catch (Exception e) {
             throw new RuntimeException();
         }

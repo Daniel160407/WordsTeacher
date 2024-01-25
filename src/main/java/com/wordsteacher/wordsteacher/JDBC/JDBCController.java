@@ -15,4 +15,6 @@ public interface JDBCController {
     int getWordsAmount() throws SQLException;
 
     void addWords(String word, String meaning);
+
+    void dropWords(StringBuilder jsonPayload);
 }
