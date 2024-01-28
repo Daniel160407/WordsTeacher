@@ -12,42 +12,17 @@
 </head>
 <body>
 <ul class="nav nav-tabs">
-    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#part1">Part 1</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#part2">Part 2</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#part3">Part 3</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#part4">Part 4</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#part5">Part 5</a></li>
+    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#words">Words</a></li>
     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#addWords">Add Words</a></li>
 </ul>
 <div class="tab-content">
-    <div id="part1" class="tab-pane fade show active">
-        <h2>Part 1</h2>
-        <div class="elementsToRow" id="part1Content">
+    <div id="words" class="tab-pane fade show active">
+        <h2 id="title">Level 1</h2>
+        <div class="elementsToRow" id="content">
 
         </div>
-    </div>
-    <div id="part2" class="tab-pane fade">
-        <h2>Part 2</h2>
-        <div id="part2Content">
-
-        </div>
-    </div>
-    <div id="part3" class="tab-pane fade">
-        <h2>Part 3</h2>
-        <div id="part3Content">
-
-        </div>
-    </div>
-    <div id="part4" class="tab-pane fade">
-        <h2>Part 4</h2>
-        <div id="part4Content">
-
-        </div>
-    </div>
-    <div id="part5" class="tab-pane fade">
-        <h2>Part 5</h2>
-        <div id="part5Content">
-
+        <div>
+            <button type="submit" id="submitButton" onclick="sendWords()">Send</button>
         </div>
     </div>
     <div id="addWords" class="tab-pane fade">
@@ -60,9 +35,6 @@
                 <button type="submit"></button>
             </form>
         </div>
-    </div>
-    <div>
-        <button type="submit" id="submitButton" onclick="sendWords()">Send</button>
     </div>
 </div>
 

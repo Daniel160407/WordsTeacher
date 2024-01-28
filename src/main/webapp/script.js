@@ -15,7 +15,7 @@ $("document").ready(async function start() {
             }
         });
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 50));
         await getWords();
     });
 });
@@ -31,10 +31,17 @@ async function getWords() {
         dataToDisplay += "<p class='words'>" + jsonArray[i].id + ": " + jsonArray[i].word + " - "
             + jsonArray[i].meaning + "<p/><input id='" + jsonArray[i].id + "' type='checkbox' class='checkBox'> <br/>";
     }
-    const div = document.getElementById("part1Content");
+    const div = document.getElementById("content");
     div.innerHTML = dataToDisplay;
 
-    document.getElementById("freeSlots").innerText = "Free slots remaining: " + (100 - jsonArray.length);
+    const response1 = await fetch("/wordsTeacher/wordsCounter", {method: "GET"});
+    const wordsAmount = await response1.json();
+    document.getElementById("freeSlots").innerText = "Free slots remaining: " + (100 - wordsAmount);
+
+    if (wordsAmount == 100) {
+        const h2 = document.getElementById("title").innerText;
+        document.getElementById("title").innerText = "Level " + (parseInt(h2[h2.length - 1]) + 1);
+    }
 }
 
 async function sendWords() {
@@ -62,4 +69,5 @@ async function sendWords() {
         body: JSON.stringify(words),
     });
 
+    await getWords();
 }
