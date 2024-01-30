@@ -46,4 +46,9 @@ public class WordsServlet extends HttpServlet {
             throw new RuntimeException();
         }
     }
+
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
+        mySQLController.deleteWords();
+    }
 }

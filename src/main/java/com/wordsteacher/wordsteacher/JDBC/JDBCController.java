@@ -19,4 +19,6 @@ public interface JDBCController {
     void dropWords(StringBuilder jsonPayload);
 
     void returnWords();
+
+    void deleteWords();
 }

@@ -121,13 +121,13 @@ public class MySQLController implements JDBCController {
 
                 preparedStatement.executeUpdate();
 
-                statement.executeUpdate("delete from words where word=" + word + " and meaning=" + meaning);
+                statement.executeUpdate("delete from words where word='" + word + "' and meaning='" + meaning + "'");
             }
 
             getWordsAmount();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         }
     }
 
@@ -160,7 +160,20 @@ public class MySQLController implements JDBCController {
                 statement.executeUpdate("truncate table droppedWords");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void deleteWords() {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        try {
+            Statement statement = con.createStatement();
+            statement.executeUpdate("delete from words");
+            statement.executeUpdate("delete from droppedwords");
+        } catch (SQLException e) {
+            throw new RuntimeException();
         }
     }
 }

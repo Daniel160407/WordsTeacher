@@ -17,6 +17,9 @@ $("document").ready(async function start() {
 
         await new Promise(resolve => setTimeout(resolve, 50));
         await getWords();
+
+        document.getElementById("word").value = "";
+        document.getElementById("meaning").value = "";
     });
 });
 
@@ -40,7 +43,15 @@ async function getWords() {
 
     if (wordsAmount == 100) {
         const h2 = document.getElementById("title").innerText;
-        document.getElementById("title").innerText = "Level " + (parseInt(h2[h2.length - 1]) + 1);
+
+        if (!(h2[h2.length - 1] + 1) > 5) {
+            document.getElementById("title").innerText = "Level " + (parseInt(h2[h2.length - 1]) + 1);
+        } else {
+            await fetch("/wordsTeacher/words", {method: "DELETE"});
+            await getWords();
+
+            document.getElementById("title").innerText = "Level 1";
+        }
     }
 }
 

@@ -1,3 +1,7 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
 .nav-tabs {
     margin-bottom: 20px;
 }
@@ -16,9 +20,13 @@
     text-align: center;
 }
 
-.words {
-    display: inline-block;
-    float: left;
+p {
+    display: flex;
+    align-items: center;
+}
+
+input[type="checkbox"] {
+    margin-left: 10px;
 }
 
 .checkBox {
