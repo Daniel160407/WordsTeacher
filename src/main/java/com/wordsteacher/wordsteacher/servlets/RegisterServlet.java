@@ -6,15 +6,22 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/logIn")
-public class LogInServlet extends HttpServlet {
+@WebServlet("/register")
+public class RegisterServlet extends HttpServlet {
     private final MySQLController mySQLController = new MySQLController();
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         String email = request.getParameter("email");
+        String password = request.getParameter("password");
 
-        if (mySQLController.getUser(email) != null) {
+        System.out.println("received");
+        System.out.println(email);
+        System.out.println(password);
+        System.out.println();
+
+        if (mySQLController.getUser(email) == null) {
+            mySQLController.addUser(email, password);
             response.setStatus(200);
         } else {
             response.setStatus(403);
