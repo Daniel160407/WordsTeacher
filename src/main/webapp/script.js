@@ -34,11 +34,13 @@ async function getWords() {
         dataToDisplay += "<p class='words'>" + jsonArray[i].id + ": " + jsonArray[i].word + " - "
             + jsonArray[i].meaning + "<p/><input id='" + jsonArray[i].id + "' type='checkbox' class='checkBox'> <br/>";
     }
+
     const div = document.getElementById("content");
     div.innerHTML = dataToDisplay;
 
     const response1 = await fetch("/wordsTeacher/wordsCounter", {method: "GET"});
     const wordsAmount = await response1.json();
+
     document.getElementById("freeSlots").innerText = "Free slots remaining: " + (100 - wordsAmount);
 
     if (wordsAmount == 100) {
