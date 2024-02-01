@@ -2,7 +2,7 @@ package com.wordsteacher.wordsteacher.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wordsteacher.wordsteacher.JDBC.MySQLController;
-import com.wordsteacher.wordsteacher.word.Word;
+import com.wordsteacher.wordsteacher.record.Word;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

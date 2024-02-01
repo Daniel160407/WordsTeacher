@@ -1,6 +1,7 @@
 package com.wordsteacher.wordsteacher.JDBC;
 
-import com.wordsteacher.wordsteacher.word.Word;
+import com.wordsteacher.wordsteacher.record.User;
+import com.wordsteacher.wordsteacher.record.Word;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -21,4 +22,7 @@ public interface JDBCController {
     void returnWords();
 
     void deleteWords();
+
+    void addUser(String email, String password);
+    User getUser(String email);
 }

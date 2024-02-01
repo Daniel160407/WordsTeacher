@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Log In</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="logIn.css">
     <script src="logIn.js"></script>
 </head>
@@ -11,18 +12,16 @@
 <div>
     <form id="logIn" name="logIn" method="post">
         <div>
-            <div>
-                <label for="textfield">E - Mail:</label>
-                <input type="text" name="textfield" id="textfield">
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password">
-            </div>
-            <div id="submitDiv">
-                <a href="registration.html">Register new account</a>
-                <input type="submit" name="submit" id="submit" value="Sign In">
-            </div>
+            <label for="email">E - Mail:</label>
+            <input type="text" name="email" id="email">
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password">
+        </div>
+        <div id="submitDiv">
+            <a href="registration.html">Register new account</a>
+            <input type="submit" name="submit" id="submit" value="Sign In">
         </div>
     </form>
 </div>

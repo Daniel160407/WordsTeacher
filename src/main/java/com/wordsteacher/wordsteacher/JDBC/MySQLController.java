@@ -2,7 +2,8 @@ package com.wordsteacher.wordsteacher.JDBC;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wordsteacher.wordsteacher.word.Word;
+import com.wordsteacher.wordsteacher.record.User;
+import com.wordsteacher.wordsteacher.record.Word;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -41,6 +42,13 @@ public class MySQLController implements JDBCController {
                       `id` INT NOT NULL AUTO_INCREMENT,
                       `word` VARCHAR(45) NOT NULL,
                       `meaning` VARCHAR(45) NOT NULL,
+                      PRIMARY KEY (`id`));
+                    """);
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `words`.`users` (
+                      `id` INT NOT NULL AUTO_INCREMENT,
+                      `email` VARCHAR(45) NOT NULL,
+                      `password` VARCHAR(45) NOT NULL,
                       PRIMARY KEY (`id`));
                     """);
         } catch (SQLException e) {
@@ -175,5 +183,38 @@ public class MySQLController implements JDBCController {
         } catch (SQLException e) {
             throw new RuntimeException();
         }
+    }
+
+    @Override
+    public void addUser(String email, String password) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        try {
+            PreparedStatement preparedStatement = con.prepareStatement("insert into users (email,password) values (?,?)");
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, password);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public User getUser(String email) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        User findenUser = null;
+        try {
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("select * from users where email='" + email + "'");
+
+            while (resultSet.next()) {
+                findenUser = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return findenUser;
     }
 }
