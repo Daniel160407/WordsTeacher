@@ -11,6 +11,7 @@ import java.util.List;
 
 public class MySQLController implements JDBCController {
     private Connection con;
+    private int wordAmount = 0;
 
     @Override
     public void createSchema() {
@@ -51,22 +52,43 @@ public class MySQLController implements JDBCController {
                       `password` VARCHAR(45) NOT NULL,
                       PRIMARY KEY (`id`));
                     """);
+            statement.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `words`.`userwords` (
+                            `userid` INT NOT NULL,
+                            `wordid` INT NOT NULL,
+                            INDEX `userid` (`userid` ASC),
+                            INDEX `wordid` (`wordid` ASC),
+                            CONSTRAINT `wordid`
+                                FOREIGN KEY (`wordid`)
+                                REFERENCES `words`.`words` (`id`)
+                                ON DELETE NO ACTION
+                                ON UPDATE NO ACTION,
+                            CONSTRAINT `userid`
+                                FOREIGN KEY (`userid`)
+                                REFERENCES `words`.`users` (`id`)
+                                ON DELETE NO ACTION
+                                ON UPDATE NO ACTION
+                        );
+                    """);
+
         } catch (SQLException e) {
-            throw new RuntimeException();
+            e.printStackTrace();
         }
     }
 
     @Override
-    public List<Word> getWords() throws SQLException {
+    public List<Word> getWords(int userId) throws SQLException {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         List<Word> words = new ArrayList<>();
 
         Statement statement = con.createStatement();
-        ResultSet resultSet = statement.executeQuery("select * from words");
+        ResultSet resultSet = statement.executeQuery("select word, meaning from userwords join users on userid=users.id join words on wordid=words.id where users.id='"
+                + userId + "'");
 
         while (resultSet.next()) {
-            words.add(new Word(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3)));
+            wordAmount++;
+            words.add(new Word(wordAmount, resultSet.getString(1), resultSet.getString(2)));
         }
 
         return words;
@@ -98,7 +120,7 @@ public class MySQLController implements JDBCController {
     }
 
     @Override
-    public void addWords(String word, String meaning) {
+    public void addWords(int userId, String word, String meaning) {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         try {
@@ -106,8 +128,18 @@ public class MySQLController implements JDBCController {
             preparedStatement.setString(1, word);
             preparedStatement.setString(2, meaning);
             preparedStatement.executeUpdate();
+
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("select id from words where word='" + word + "' and meaning='" + meaning + "'");
+
+            while (resultSet.next()) {
+                preparedStatement = con.prepareStatement("insert ignore into userWords values (?,?)");
+                preparedStatement.setInt(1, userId);
+                preparedStatement.setInt(2, resultSet.getInt(1));
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            e.printStackTrace();
         }
     }
 
@@ -216,5 +248,24 @@ public class MySQLController implements JDBCController {
         }
 
         return findenUser;
+    }
+
+    @Override
+    public int searchUser(String email) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        int id = 0;
+        try {
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("select id from users where email='" + email + "'");
+
+            while (resultSet.next()) {
+                id = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return id;
     }
 }

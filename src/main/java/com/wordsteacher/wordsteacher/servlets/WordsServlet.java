@@ -8,18 +8,27 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 @WebServlet("/words")
 public class WordsServlet extends HttpServlet {
     private final MySQLController mySQLController = new MySQLController();
+    private int userId;
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/json");
+
+        this.userId = Integer.parseInt(request.getParameter("userId"));
+
         try {
-            List<Word> words = mySQLController.getWords();
+            List<Word> words = mySQLController.getWords(userId);
             PrintWriter printWriter = response.getWriter();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -37,7 +46,7 @@ public class WordsServlet extends HttpServlet {
         String word = request.getParameter("word");
         String meaning = request.getParameter("meaning");
 
-        mySQLController.addWords(word, meaning);
+        mySQLController.addWords(userId, word, meaning);
 
         try {
             PrintWriter printWriter = response.getWriter();

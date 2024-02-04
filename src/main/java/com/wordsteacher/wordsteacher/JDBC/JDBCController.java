@@ -11,11 +11,11 @@ public interface JDBCController {
 
     void createTables();
 
-    List<Word> getWords() throws SQLException;
+    List<Word> getWords(int userId) throws SQLException;
 
     int getWordsAmount() throws SQLException;
 
-    void addWords(String word, String meaning);
+    void addWords(int userId, String word, String meaning);
 
     void dropWords(StringBuilder jsonPayload);
 
@@ -24,5 +24,8 @@ public interface JDBCController {
     void deleteWords();
 
     void addUser(String email, String password);
+
     User getUser(String email);
+
+    int searchUser(String email);
 }

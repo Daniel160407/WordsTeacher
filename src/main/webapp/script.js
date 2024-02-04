@@ -24,8 +24,25 @@ $("document").ready(async function start() {
 });
 
 async function getWords() {
-    const url = "/wordsTeacher/words";
-    const response = await fetch(url, {method: "GET"});
+    let userId;
+    await fetch('/wordsTeacher/logIn', {method: "GET"})
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            userId = parseInt(data);
+        });
+
+
+    const response = await fetch(`/wordsTeacher/words?userId=${userId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/text"
+        },
+    });
 
     const jsonArray = await response.json();
     let dataToDisplay = "";
