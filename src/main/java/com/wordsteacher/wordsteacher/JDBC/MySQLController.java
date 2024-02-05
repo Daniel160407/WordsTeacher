@@ -124,16 +124,30 @@ public class MySQLController implements JDBCController {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         try {
-            PreparedStatement preparedStatement = con.prepareStatement("insert into words (word,meaning) values (?,?)");
-            preparedStatement.setString(1, word);
-            preparedStatement.setString(2, meaning);
-            preparedStatement.executeUpdate();
-
             Statement statement = con.createStatement();
-            ResultSet resultSet = statement.executeQuery("select id from words where word='" + word + "' and meaning='" + meaning + "'");
+            ResultSet resultSet = statement.executeQuery("select word, meaning from words");
+
+            boolean entrancePermission = false;
+            while (resultSet.next()) {
+                if (resultSet.getString(1).equals(word) && resultSet.getString(2).equals(meaning)) {
+                    entrancePermission = false;
+                    break;
+                } else {
+                    entrancePermission = true;
+                }
+            }
+
+            if (entrancePermission) {
+                PreparedStatement preparedStatement = con.prepareStatement("insert into words (word,meaning) values (?,?)");
+                preparedStatement.setString(1, word);
+                preparedStatement.setString(2, meaning);
+                preparedStatement.executeUpdate();
+            }
+
+            resultSet = statement.executeQuery("select id from words where word='" + word + "' and meaning='" + meaning + "'");
 
             while (resultSet.next()) {
-                preparedStatement = con.prepareStatement("insert ignore into userWords values (?,?)");
+                PreparedStatement preparedStatement = con.prepareStatement("insert ignore into userWords values (?,?)");
                 preparedStatement.setInt(1, userId);
                 preparedStatement.setInt(2, resultSet.getInt(1));
                 preparedStatement.executeUpdate();
