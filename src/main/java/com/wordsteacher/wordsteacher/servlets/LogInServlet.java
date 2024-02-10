@@ -24,7 +24,7 @@ public class LogInServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/text");
 
         String email = request.getParameter("email");

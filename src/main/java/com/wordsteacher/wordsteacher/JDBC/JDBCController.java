@@ -13,13 +13,15 @@ public interface JDBCController {
 
     List<Word> getWords(int userId) throws SQLException;
 
-    int getWordsAmount() throws SQLException;
+    int getWordsAmount(int userId) throws SQLException;
+
+    int getDroppedWordsAmount(int userId) throws SQLException;
 
     void addWords(int userId, String word, String meaning);
 
-    void dropWords(StringBuilder jsonPayload);
+    void dropWords(int userId, StringBuilder jsonPayload);
 
-    void returnWords();
+    void returnWords(int userId);
 
     void deleteWords();
 

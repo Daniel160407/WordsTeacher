@@ -1,3 +1,4 @@
+let userId;
 $("document").ready(async function start() {
     await getWords();
 
@@ -24,7 +25,6 @@ $("document").ready(async function start() {
 });
 
 async function getWords() {
-    let userId;
     await fetch('/wordsTeacher/logIn', {method: "GET"})
         .then(response => {
             if (!response.ok) {
@@ -35,7 +35,7 @@ async function getWords() {
         .then(data => {
             userId = parseInt(data);
         });
-
+    console.log(userId);
 
     const response = await fetch(`/wordsTeacher/words?userId=${userId}`, {
         method: "GET",
@@ -55,43 +55,49 @@ async function getWords() {
     const div = document.getElementById("content");
     div.innerHTML = dataToDisplay;
 
-    const response1 = await fetch("/wordsTeacher/wordsCounter", {method: "GET"});
+    const response1 = await fetch(`/wordsTeacher/wordsCounter?userId=${userId}&droppedWords=true`, {method: "GET"});
     const wordsAmount = await response1.json();
 
     document.getElementById("freeSlots").innerText = "Free slots remaining: " + (100 - wordsAmount);
-
-    if (wordsAmount == 100) {
+    console.log("Words amount: " + wordsAmount);
+    if (wordsAmount == 2) {
         const h2 = document.getElementById("title").innerText;
 
-        if (!(h2[h2.length - 1] + 1) > 5) {
+        console.log((parseInt(h2[h2.length - 1]) + 1));
+        if ((parseInt(h2[h2.length - 1]) + 1) <= 5) {
             document.getElementById("title").innerText = "Level " + (parseInt(h2[h2.length - 1]) + 1);
         } else {
-            await fetch("/wordsTeacher/words", {method: "DELETE"});
-            await getWords();
-
+            console.log("Recursion");
             document.getElementById("title").innerText = "Level 1";
+
+            await fetch(`/wordsTeacher/words?userId=${userId}`, {method: "DELETE"});
+            await getWords();
         }
     }
 }
 
 async function sendWords() {
+    console.log("called");
     const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
     const checkedCheckboxes = Array.from(checkboxes);
 
-    let response = await fetch("/wordsTeacher/words", {method: "GET"});
+    let response = await fetch(`/wordsTeacher/words?userId=${userId}`, {method: "GET"});
     let jsonArray = await response.json();
 
     const words = [];
 
     for (let i = 0; i < jsonArray.length; i++) {
         for (let j = 0; j < checkedCheckboxes.length; j++) {
+            console.log("jsonArray: " + jsonArray[i].id);
+            console.log("checkBox: " + checkedCheckboxes[j].id);
             if (jsonArray[i].id == checkedCheckboxes[j].id) {
                 words.push(jsonArray[i]);
+                console.log(`${i}: ${jsonArray[i]}`);
             }
         }
     }
-
-    await fetch("/wordsTeacher/wordDropper", {
+    console.log("JSON: " + JSON.stringify(words));
+    await fetch(`/wordsTeacher/wordDropper?userId=${userId}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

@@ -18,10 +18,18 @@ public class WordsCounterServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/text");
 
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        boolean getDroppedWordsAmount = Boolean.parseBoolean(request.getParameter("droppedWords"));
+        System.out.println(getDroppedWordsAmount);
+
         PrintWriter writer = response.getWriter();
 
         try {
-            writer.println(mySQLController.getWordsAmount());
+            if (getDroppedWordsAmount) {
+                writer.println(mySQLController.getDroppedWordsAmount(userId));
+            } else {
+                writer.println(mySQLController.getWordsAmount(userId));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

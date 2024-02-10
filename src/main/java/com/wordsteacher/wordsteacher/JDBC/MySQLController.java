@@ -12,6 +12,7 @@ import java.util.List;
 public class MySQLController implements JDBCController {
     private Connection con;
     private int wordAmount = 0;
+    private int userId;
 
     @Override
     public void createSchema() {
@@ -40,10 +41,9 @@ public class MySQLController implements JDBCController {
                     """);
             statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `words`.`droppedwords` (
-                      `id` INT NOT NULL AUTO_INCREMENT,
-                      `word` VARCHAR(45) NOT NULL,
-                      `meaning` VARCHAR(45) NOT NULL,
-                      PRIMARY KEY (`id`));
+                                            `userid` INT NOT NULL,
+                                            `wordid` INT NOT NULL);
+                                          
                     """);
             statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `words`.`users` (
@@ -86,6 +86,7 @@ public class MySQLController implements JDBCController {
         ResultSet resultSet = statement.executeQuery("select word, meaning from userwords join users on userid=users.id join words on wordid=words.id where users.id='"
                 + userId + "'");
 
+        wordAmount = 0;
         while (resultSet.next()) {
             wordAmount++;
             words.add(new Word(wordAmount, resultSet.getString(1), resultSet.getString(2)));
@@ -95,11 +96,11 @@ public class MySQLController implements JDBCController {
     }
 
     @Override
-    public int getWordsAmount() throws SQLException {
+    public int getWordsAmount(int userId) throws SQLException {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         Statement statement = con.createStatement();
-        ResultSet resultSet = statement.executeQuery("select count(*) as count from words");
+        ResultSet resultSet = statement.executeQuery("select count(*) as count from userWords where userid='" + userId + "'");
 
         int amount = 0;
         while (resultSet.next()) {
@@ -107,15 +108,26 @@ public class MySQLController implements JDBCController {
         }
 
         if (amount == 0) {
-            returnWords();
-        }
-
-        resultSet = statement.executeQuery("select count(*) as count from droppedwords");
-        while (resultSet.next()) {
-            amount += resultSet.getInt(1);
+            returnWords(userId);
         }
 
         System.out.println(amount);
+        this.userId = userId;
+        return amount;
+    }
+
+    @Override
+    public int getDroppedWordsAmount(int userId) throws SQLException {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery("select count(*) from droppedwords where userid='" + userId + "'");
+
+        int amount = 0;
+        while (resultSet.next()) {
+            amount = resultSet.getInt(1);
+        }
+
         return amount;
     }
 
@@ -127,13 +139,11 @@ public class MySQLController implements JDBCController {
             Statement statement = con.createStatement();
             ResultSet resultSet = statement.executeQuery("select word, meaning from words");
 
-            boolean entrancePermission = false;
+            boolean entrancePermission = true;
             while (resultSet.next()) {
                 if (resultSet.getString(1).equals(word) && resultSet.getString(2).equals(meaning)) {
                     entrancePermission = false;
                     break;
-                } else {
-                    entrancePermission = true;
                 }
             }
 
@@ -158,27 +168,35 @@ public class MySQLController implements JDBCController {
     }
 
     @Override
-    public void dropWords(StringBuilder jsonPayload) {
+    public void dropWords(int userId, StringBuilder jsonPayload) {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         try {
             Statement statement = con.createStatement();
+
             JsonNode jsonArray = new ObjectMapper().readTree(String.valueOf(jsonPayload));
 
-            PreparedStatement preparedStatement = con.prepareStatement("insert into droppedWords (word,meaning) values (?,?)");
+            PreparedStatement preparedStatement = con.prepareStatement("insert into droppedWords (userid,wordid) values (?,?)");
             for (JsonNode jsonNode : jsonArray) {
                 String word = jsonNode.get("word").asText();
                 String meaning = jsonNode.get("meaning").asText();
 
-                preparedStatement.setString(1, word);
-                preparedStatement.setString(2, meaning);
+                ResultSet resultSet = statement.executeQuery("select id from words where word='" + word + "' and meaning='" + meaning + "'");
+
+                int wordId = 0;
+                while (resultSet.next()) {
+                    wordId = resultSet.getInt(1);
+                }
+
+                preparedStatement.setString(1, String.valueOf(userId));
+                preparedStatement.setString(2, String.valueOf(wordId));
 
                 preparedStatement.executeUpdate();
 
-                statement.executeUpdate("delete from words where word='" + word + "' and meaning='" + meaning + "'");
+                statement.executeUpdate("delete from userwords where userid='" + userId + "' and wordid='" + wordId + "'");
             }
 
-            getWordsAmount();
+            getWordsAmount(userId);
 
         } catch (Exception e) {
             throw new RuntimeException();
@@ -186,32 +204,30 @@ public class MySQLController implements JDBCController {
     }
 
     @Override
-    public void returnWords() {
+    public void returnWords(int userId) {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         try {
             Statement statement = con.createStatement();
-            ResultSet resultSet = statement.executeQuery("select count(*) from droppedWords");
+            ResultSet resultSet = statement.executeQuery("select count(*) from droppedWords where userid='" + userId + "'");
 
             int amount = 0;
             while (resultSet.next()) {
                 amount = resultSet.getInt(1);
             }
 
-            if (amount == 100) {
-                statement.executeUpdate("truncate table words");
+            if (amount == 2) {
+                resultSet = statement.executeQuery("select wordid from droppedWords where userid='" + userId + "'");
 
-                resultSet = statement.executeQuery("select word,meaning from droppedWords");
-
-                PreparedStatement preparedStatement = con.prepareStatement("insert into words (word,meaning) values (?,?)");
+                PreparedStatement preparedStatement = con.prepareStatement("insert into userwords values (?,?)");
 
                 while (resultSet.next()) {
-                    preparedStatement.setString(1, resultSet.getString(1));
-                    preparedStatement.setString(2, resultSet.getString(2));
+                    preparedStatement.setString(1, String.valueOf(userId));
+                    preparedStatement.setString(2, resultSet.getString(1));
                     preparedStatement.executeUpdate();
                 }
 
-                statement.executeUpdate("truncate table droppedWords");
+                statement.executeUpdate("delete from droppedwords where userid='" + userId + "'");
             }
         } catch (SQLException e) {
             throw new RuntimeException();
@@ -222,13 +238,13 @@ public class MySQLController implements JDBCController {
     public void deleteWords() {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
-        try {
-            Statement statement = con.createStatement();
-            statement.executeUpdate("delete from words");
-            statement.executeUpdate("delete from droppedwords");
-        } catch (SQLException e) {
-            throw new RuntimeException();
-        }
+//        try {
+//            Statement statement = con.createStatement();
+//            statement.executeUpdate("delete from words");
+//            statement.executeUpdate("delete from droppedwords");
+//        } catch (SQLException e) {
+//            throw new RuntimeException();
+//        }
     }
 
     @Override

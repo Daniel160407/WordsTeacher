@@ -17,6 +17,8 @@ public class WordDropperServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/text");
 
+        int userId = Integer.parseInt(request.getParameter("userId"));
+
         BufferedReader reader = request.getReader();
         StringBuilder jsonPayload = new StringBuilder();
         String line;
@@ -24,6 +26,7 @@ public class WordDropperServlet extends HttpServlet {
             jsonPayload.append(line);
         }
 
-        mySQLController.dropWords(jsonPayload);
+        System.out.println("Json: " + jsonPayload);
+        mySQLController.dropWords(userId, jsonPayload);
     }
 }

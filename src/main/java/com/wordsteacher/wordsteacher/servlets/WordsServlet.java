@@ -8,12 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 @WebServlet("/words")
@@ -22,7 +17,7 @@ public class WordsServlet extends HttpServlet {
     private int userId;
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/json");
 
         this.userId = Integer.parseInt(request.getParameter("userId"));
@@ -50,7 +45,7 @@ public class WordsServlet extends HttpServlet {
 
         try {
             PrintWriter printWriter = response.getWriter();
-            printWriter.println(mySQLController.getWordsAmount());
+            printWriter.println(mySQLController.getWordsAmount(userId));
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -58,6 +53,8 @@ public class WordsServlet extends HttpServlet {
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
-        mySQLController.deleteWords();
+        int userId = Integer.parseInt(request.getParameter("userId"));
+
+        mySQLController.returnWords(userId);
     }
 }
