@@ -26,18 +26,18 @@ $("document").ready(async function start() {
 });
 
 async function getWords(levelUpPermission) {
-    await fetch('/wordsTeacher/logIn', {method: "GET"})
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(data => {
-            userId = parseInt(data);
-        });
+    let response = await fetch('/wordsTeacher/logIn', {method: "GET"});
+    let data = await response.json();
 
-    let response = await fetch(`/wordsTeacher/words?userId=${userId}`, {
+    userId = data.id;
+    const level = parseInt(data.level);
+    console.log("level: " + level);
+    document.getElementById("title").innerText = "Level " + level;
+    console.log("UserId: " + userId);
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    response = await fetch(`/wordsTeacher/words?userId=${userId}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/text"
@@ -81,6 +81,9 @@ async function getWords(levelUpPermission) {
             await fetch(`/wordsTeacher/words?userId=${userId}`, {method: "DELETE"});
             await getWords(false);
         }
+
+        await fetch(`/wordsTeacher/stateSaver?userId=${userId}&level=${document.getElementById("title")
+            .innerText[document.getElementById("title").innerText.length - 1]}`, {method: "POST"});
     } else {
         previousWordsAmount = droppedWordsAmount;
     }

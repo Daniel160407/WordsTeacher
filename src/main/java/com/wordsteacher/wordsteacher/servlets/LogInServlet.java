@@ -2,6 +2,7 @@ package com.wordsteacher.wordsteacher.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wordsteacher.wordsteacher.JDBC.MySQLController;
+import com.wordsteacher.wordsteacher.record.User;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,8 @@ public class LogInServlet extends HttpServlet {
         response.setContentType("text/text");
 
         PrintWriter printWriter = response.getWriter();
-        printWriter.println(mySQLController.searchUser(email));
+        System.out.println(new ObjectMapper().writeValueAsString(new User(mySQLController.searchUser(email), null, null, mySQLController.getUserLevel(email))));
+        printWriter.println(new ObjectMapper().writeValueAsString(new User(mySQLController.searchUser(email), null, null, mySQLController.getUserLevel(email))));
     }
 
     @Override

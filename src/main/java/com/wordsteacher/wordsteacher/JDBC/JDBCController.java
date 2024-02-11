@@ -30,4 +30,8 @@ public interface JDBCController {
     User getUser(String email);
 
     int searchUser(String email);
+
+    int getUserLevel(String email);
+
+    void setUserLevel(int userId, int level);
 }

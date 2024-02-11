@@ -11,8 +11,6 @@ import java.util.List;
 
 public class MySQLController implements JDBCController {
     private Connection con;
-    private int wordAmount = 0;
-    private int userId;
 
     @Override
     public void createSchema() {
@@ -50,6 +48,7 @@ public class MySQLController implements JDBCController {
                       `id` INT NOT NULL AUTO_INCREMENT,
                       `email` VARCHAR(45) NOT NULL,
                       `password` VARCHAR(45) NOT NULL,
+                      `level` INT NOT NULL,
                       PRIMARY KEY (`id`));
                     """);
             statement.executeUpdate("""
@@ -72,7 +71,7 @@ public class MySQLController implements JDBCController {
                     """);
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -86,7 +85,7 @@ public class MySQLController implements JDBCController {
         ResultSet resultSet = statement.executeQuery("select word, meaning from userwords join users on userid=users.id join words on wordid=words.id where users.id='"
                 + userId + "'");
 
-        wordAmount = 0;
+        int wordAmount = 0;
         while (resultSet.next()) {
             wordAmount++;
             words.add(new Word(wordAmount, resultSet.getString(1), resultSet.getString(2)));
@@ -112,7 +111,6 @@ public class MySQLController implements JDBCController {
         }
 
         System.out.println(amount);
-        this.userId = userId;
         return amount;
     }
 
@@ -163,7 +161,7 @@ public class MySQLController implements JDBCController {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -247,12 +245,13 @@ public class MySQLController implements JDBCController {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
         try {
-            PreparedStatement preparedStatement = con.prepareStatement("insert into users (email,password) values (?,?)");
+            PreparedStatement preparedStatement = con.prepareStatement("insert into users (email,password,level) values (?,?,?)");
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
+            preparedStatement.setInt(3, 1);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -266,10 +265,10 @@ public class MySQLController implements JDBCController {
             ResultSet resultSet = statement.executeQuery("select * from users where email='" + email + "'");
 
             while (resultSet.next()) {
-                findenUser = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3));
+                findenUser = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3), 0);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return findenUser;
@@ -288,9 +287,42 @@ public class MySQLController implements JDBCController {
                 id = resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return id;
     }
+
+    @Override
+    public int getUserLevel(String email) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        int level = 0;
+        try {
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("select level from users where email='" + email + "'");
+
+            while (resultSet.next()) {
+                level = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return level;
+    }
+
+    @Override
+    public void setUserLevel(int userId, int level) {
+        con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
+
+        try {
+            Statement statement = con.createStatement();
+            System.out.println("level: " + level);
+            statement.executeUpdate("update users set level='" + level + "' where id='" + userId + "'");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
