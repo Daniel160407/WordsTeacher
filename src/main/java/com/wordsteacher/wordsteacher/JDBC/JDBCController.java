@@ -23,7 +23,7 @@ public interface JDBCController {
 
     void returnWords(int userId);
 
-    void deleteWords();
+    void deleteWords(int userId) throws SQLException;
 
     void addUser(String email, String password);
 

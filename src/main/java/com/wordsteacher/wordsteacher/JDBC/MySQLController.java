@@ -235,16 +235,11 @@ public class MySQLController implements JDBCController {
     }
 
     @Override
-    public void deleteWords() {
+    public void deleteWords(int userId) throws SQLException {
         con = MySQLConnector.getConnection("jdbc:mysql://localhost:3306/words", "root", "17042007");
 
-//        try {
-//            Statement statement = con.createStatement();
-//            statement.executeUpdate("delete from words");
-//            statement.executeUpdate("delete from droppedwords");
-//        } catch (SQLException e) {
-//            throw new RuntimeException();
-//        }
+        Statement statement = con.createStatement();
+        statement.executeUpdate("delete from userwords where userid='" + userId + "'");
     }
 
     @Override

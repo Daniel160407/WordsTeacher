@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet("/words")
@@ -47,7 +48,7 @@ public class WordsServlet extends HttpServlet {
             PrintWriter printWriter = response.getWriter();
             printWriter.println(mySQLController.getWordsAmount(userId));
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -56,5 +57,10 @@ public class WordsServlet extends HttpServlet {
         int userId = Integer.parseInt(request.getParameter("userId"));
 
         mySQLController.returnWords(userId);
+        try {
+            mySQLController.deleteWords(userId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

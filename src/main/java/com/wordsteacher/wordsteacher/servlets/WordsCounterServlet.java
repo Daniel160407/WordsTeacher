@@ -27,6 +27,7 @@ public class WordsCounterServlet extends HttpServlet {
         try {
             if (getDroppedWordsAmount) {
                 writer.println(mySQLController.getDroppedWordsAmount(userId));
+                System.out.println("WordsAmount: " + mySQLController.getDroppedWordsAmount(userId));
             } else {
                 writer.println(mySQLController.getWordsAmount(userId));
             }
